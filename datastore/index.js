@@ -12,7 +12,7 @@ exports.create = (text, callback) => {
     if (err) {
       throw "Could not get ID.";
     } else {
-      fs.writeFile(path.join(__dirname, "/data/" + id + ".txt"), text, err => {
+      fs.writeFile(`${exports.dataDir}/${id}.txt`, text, err => {
         if (err) {
           throw "Could not save file.";
         }
@@ -20,27 +20,22 @@ exports.create = (text, callback) => {
       });
     }
   });
-  // write new file to disk
-  // name is ID
-  // body is body text
 };
 
 exports.readAll = callback => {
-  fs.readdir(path.join(__dirname, "/data"), (err, files) => {
-    _.map(files, filePath => {
-      exports.readOne(filePath.split(".")[0], (error, fileData) => {
-        if (!error) {
-          data.push(fileData);
-        }
-      });
-    });
-  });
+  fs.readdir(exports.dataDir, (err, files) => {
+    let todos = [];
+    for (let i = 0; i < files.length; i++) {
+      let text = fs.readFileSync(exports.dataDir + "/" + files[i]).toString();
+      todos.push({ id: files[i].split(".")[0], text: text });
+    }
 
-  callback(null, data);
+    callback(null, todos);
+  });
 };
 
 exports.readOne = (id, callback) => {
-  fs.readFile(path.join(__dirname, "/data/" + id + ".txt"), (err, text) => {
+  fs.readFile(`${exports.dataDir}/${id}.txt`, (err, text) => {
     if (err) {
       callback(new Error(`No item with id: ${id}`));
     } else {
@@ -50,16 +45,22 @@ exports.readOne = (id, callback) => {
 };
 
 exports.update = (id, text, callback) => {
-  fs.writeFile(path.join(__dirname, "/data/" + id + ".txt"), (text, err) => {
-    if (err) {
+  fs.readFile(`${exports.dataDir}/${id}.txt`, (err, file) => {
+    if (!err && file) {
+      fs.writeFile(exports.dataDir + "/" + id + ".txt", text, err => {
+        if (err) {
+          throw "Could not write file";
+        }
+        callback(null, { id, text });
+      });
+    } else {
       callback(new Error(`No item with id: ${id}`));
     }
-    callback(null, { id, text });
   });
 };
 
 exports.delete = (id, callback) => {
-  fs.unlink(path.join(__dirname, "/data/" + id + ".txt"), err => {
+  fs.unlink(`${exports.dataDir}/${id}.txt`, err => {
     if (err) {
       callback(new Error(`No item with id: ${id}`));
     } else {
