@@ -26,7 +26,7 @@ exports.readAll = callback => {
   fs.readdir(exports.dataDir, (err, files) => {
     let todos = [];
     for (let i = 0; i < files.length; i++) {
-      let text = fs.readFileSync(exports.dataDir + "/" + files[i]).toString();
+      let text = fs.readFileSync(`${exports.dataDir}/${files[i]}`).toString();
       todos.push({ id: files[i].split(".")[0], text: text });
     }
 
