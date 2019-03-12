@@ -27,23 +27,27 @@ exports.readAll = callback => {
     if (err) {
       throw "Could not read files.";
     } else {
-      callback(
-        null,
-        _.map(files, file => {
-          return { id: file.split(".")[0], text: file.split(".")[0] };
+      Promise.all(
+        files.map(filePath => {
+          return exports.readOneAsync(filePath.split(".")[0]);
         })
-      );
+      )
+        .then(results => callback(null, results))
+        .catch(err => callback(err, null));
     }
   });
 
   // fs.readdir(exports.dataDir, (err, files) => {
-  //   let todos = [];
-  //   for (let i = 0; i < files.length; i++) {
-  //     let text = fs.readFileSync(`${exports.dataDir}/${files[i]}`).toString();
-  //     todos.push({ id: files[i].split(".")[0], text: text });
+  //   if (err) {
+  //     throw "Could not read files.";
+  //   } else {
+  //     callback(
+  //       null,
+  //       _.map(files, file => {
+  //         return { id: file.split(".")[0], text: file.split(".")[0] };
+  //       })
+  //     );
   //   }
-
-  //   callback(null, todos);
   // });
 };
 
@@ -54,6 +58,18 @@ exports.readOne = (id, callback) => {
     } else {
       callback(null, { id, text: text.toString() });
     }
+  });
+};
+
+exports.readOneAsync = id => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(`${exports.dataDir}/${id}.txt`, (err, text) => {
+      if (err) {
+        reject(new Error(`No item with id: ${id}`));
+      } else {
+        resolve({ id, text: text.toString() });
+      }
+    });
   });
 };
 
