@@ -24,14 +24,27 @@ exports.create = (text, callback) => {
 
 exports.readAll = callback => {
   fs.readdir(exports.dataDir, (err, files) => {
-    let todos = [];
-    for (let i = 0; i < files.length; i++) {
-      let text = fs.readFileSync(`${exports.dataDir}/${files[i]}`).toString();
-      todos.push({ id: files[i].split(".")[0], text: text });
+    if (err) {
+      throw "Could not read files.";
+    } else {
+      callback(
+        null,
+        _.map(files, file => {
+          return { id: file.split(".")[0], text: file.split(".")[0] };
+        })
+      );
     }
-
-    callback(null, todos);
   });
+
+  // fs.readdir(exports.dataDir, (err, files) => {
+  //   let todos = [];
+  //   for (let i = 0; i < files.length; i++) {
+  //     let text = fs.readFileSync(`${exports.dataDir}/${files[i]}`).toString();
+  //     todos.push({ id: files[i].split(".")[0], text: text });
+  //   }
+
+  //   callback(null, todos);
+  // });
 };
 
 exports.readOne = (id, callback) => {

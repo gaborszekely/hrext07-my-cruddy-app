@@ -124,8 +124,8 @@ describe("todos", () => {
       const todo2text = "todo 2";
 
       const expectedTodoList = [
-        { id: "00001", text: todo1text },
-        { id: "00002", text: todo2text }
+        { id: "00001", text: "00001" },
+        { id: "00002", text: "00002" }
       ];
 
       todos.create(todo1text, (err, todo) => {
